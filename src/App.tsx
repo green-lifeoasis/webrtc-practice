@@ -98,6 +98,8 @@ function App() {
     sendChannelRef.current.onopen = onSendChannelStateChange;
     sendChannelRef.current.onclose = onSendChannelStateChange;
     sendChannelRef.current.onerror = onSendChannelStateChange;
+    peerRef.current.ontrack = gotRemoteStream;
+    peerRef.current.ondatachannel = testFunc;
   }
 
   function configPeer() {
@@ -163,6 +165,12 @@ function App() {
 
   async function handleOffer(remoteSdpPayload: DescriptionPayload) {
     peerRef.current = configPeer();
+    sendChannelRef.current = peerRef.current.createDataChannel('sendChannel', {
+      ordered: true,
+    });
+    sendChannelRef.current.onopen = onSendChannelStateChange;
+    sendChannelRef.current.onclose = onSendChannelStateChange;
+    sendChannelRef.current.onerror = onSendChannelStateChange;
     peerRef.current.ontrack = gotRemoteStream;
     peerRef.current.ondatachannel = testFunc;
     const desc = new RTCSessionDescription(
@@ -181,10 +189,10 @@ function App() {
   }
 
   function testFunc(event: RTCDataChannelEvent) {
-    sendChannelRef.current = event.channel;
-    sendChannelRef.current.onmessage = onReceiveMessageCallback;
-    sendChannelRef.current.onopen = onReceiveChannelStateChange;
-    sendChannelRef.current.onclose = onReceiveChannelStateChange;
+    receiveChannelRef.current = event.channel;
+    receiveChannelRef.current.onmessage = onReceiveMessageCallback;
+    receiveChannelRef.current.onopen = onReceiveChannelStateChange;
+    receiveChannelRef.current.onclose = onReceiveChannelStateChange;
   }
 
   function gotRemoteStream(event: RTCTrackEvent) {
